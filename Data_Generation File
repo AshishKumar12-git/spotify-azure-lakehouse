@@ -1,0 +1,117 @@
+
+---Records created for DimDate
+
+DECLARE @startDate DATE = '2016-01-01';
+DECLARE @endDate DATE = '2026-12-31';
+
+WITH d AS (
+SELECT @startDate AS dt
+UNION ALL
+SELECT DATEADD(DAY,1,dt)
+FROM d
+WHERE dt < @endDate
+)
+INSERT INTO dbo.dimDate
+SELECT
+CONVERT(INT, FORMAT(dt,'yyyyMMdd')),
+dt,
+YEAR(dt),
+DATEPART(QUARTER,dt),
+MONTH(dt),
+DATENAME(MONTH,dt),
+DATEPART(WEEK,dt),
+DAY(dt),
+DATENAME(WEEKDAY,dt),
+CASE WHEN DATENAME(WEEKDAY,dt) IN ('Saturday','Sunday') THEN 1 ELSE 0 END
+FROM d
+OPTION (MAXRECURSION 0);
+
+
+
+
+---Records created for DimUser
+DECLARE @i INT = 1;
+WHILE @i <= 10000
+BEGIN
+INSERT INTO dbo.dimUser
+(user_id,country,subscription_type,signup_date,watermark_ts)
+VALUES
+(
+CONCAT('user_',@i),
+CHOOSE(ABS(CHECKSUM(NEWID()))%6+1,'IN','US','UK','DE','BR','JP'),
+CHOOSE(ABS(CHECKSUM(NEWID()))%2+1,'free','premium'),
+DATEADD(DAY,-ABS(CHECKSUM(NEWID()))%1500,GETDATE()),
+DATEADD(MINUTE,-ABS(CHECKSUM(NEWID()))%100000,GETDATE())
+);
+SET @i=@i+1;
+END
+
+
+
+
+---Records created for DimArtist
+
+DECLARE @i INT = 1;
+WHILE @i <= 2000
+BEGIN
+INSERT INTO dbo.dimArtist
+(artist_id,artist_name,genre,popularity,watermark_ts)
+VALUES
+(
+CONCAT('artist_',@i),
+CONCAT('Artist ',@i),
+CHOOSE(ABS(CHECKSUM(NEWID()))%6+1,'Pop','Rock','HipHop','Jazz','EDM','Classical'),
+ABS(CHECKSUM(NEWID()))%100,
+DATEADD(MINUTE,-ABS(CHECKSUM(NEWID()))%200000,GETDATE())
+);
+SET @i=@i+1;
+END
+
+
+
+---Records created for DimTrack
+
+
+
+DECLARE @i INT = 1;
+WHILE @i <= 10000
+BEGIN
+INSERT INTO dbo.dimTrack
+(track_id,track_name,artist_id,duration_ms,album_name,release_date,explicit_flag,watermark_ts)
+VALUES
+(
+CONCAT('track_',@i),
+CONCAT('Track ',@i),
+CONCAT('artist_',ABS(CHECKSUM(NEWID()))%2000+1),
+ABS(CHECKSUM(NEWID()))%240000+60000,
+CONCAT('Album ',ABS(CHECKSUM(NEWID()))%3000),
+DATEADD(DAY,-ABS(CHECKSUM(NEWID()))%3000,GETDATE()),
+ABS(CHECKSUM(NEWID()))%2,
+DATEADD(MINUTE,-ABS(CHECKSUM(NEWID()))%200000,GETDATE())
+);
+SET @i=@i+1;
+END
+
+
+---Records created for FactStream
+
+DECLARE @i INT = 1;
+WHILE @i <= 200000
+BEGIN
+INSERT INTO dbo.factStream
+(user_id,track_id,artist_id,stream_timestamp,ms_played,skipped,platform,watermark_ts)
+VALUES
+(
+CONCAT('user_',ABS(CHECKSUM(NEWID()))%10000+1),
+CONCAT('track_',ABS(CHECKSUM(NEWID()))%10000+1),
+CONCAT('artist_',ABS(CHECKSUM(NEWID()))%2000+1),
+DATEADD(MINUTE,-ABS(CHECKSUM(NEWID()))%500000,GETDATE()),
+ABS(CHECKSUM(NEWID()))%240000,
+ABS(CHECKSUM(NEWID()))%2,
+CHOOSE(ABS(CHECKSUM(NEWID()))%3+1,'mobile','web','desktop'),
+DATEADD(MINUTE,-ABS(CHECKSUM(NEWID()))%500000,GETDATE())
+);
+SET @i=@i+1;
+END
+
+
