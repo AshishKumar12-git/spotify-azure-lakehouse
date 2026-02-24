@@ -1,0 +1,9 @@
+{
+	"name": "spotifyashishfactory",
+	"location": "southindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "57baac63-04d4-40ab-971b-8c59129f0bf3",
+		"tenantId": "4d6e3bc6-079c-40e0-8f2f-e542c85084a8"
+	}
+}
