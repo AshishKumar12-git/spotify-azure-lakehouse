@@ -1,0 +1,67 @@
+-- USERS
+CREATE TABLE dbo.dimUser (
+user_key INT IDENTITY(1,1) PRIMARY KEY,
+user_id VARCHAR(50) NOT NULL UNIQUE,
+country VARCHAR(5),
+subscription_type VARCHAR(20),
+signup_date DATE,
+is_active BIT DEFAULT 1,
+created_at DATETIME2 DEFAULT GETDATE(),
+updated_at DATETIME2 DEFAULT GETDATE(),
+watermark_ts DATETIME2
+);
+
+-- ARTIST
+CREATE TABLE dbo.dimArtist (
+artist_key INT IDENTITY(1,1) PRIMARY KEY,
+artist_id VARCHAR(50) NOT NULL UNIQUE,
+artist_name VARCHAR(255),
+genre VARCHAR(100),
+popularity INT,
+created_at DATETIME2 DEFAULT GETDATE(),
+updated_at DATETIME2 DEFAULT GETDATE(),
+watermark_ts DATETIME2
+);
+
+-- TRACK
+CREATE TABLE dbo.dimTrack (
+track_key INT IDENTITY(1,1) PRIMARY KEY,
+track_id VARCHAR(50) NOT NULL UNIQUE,
+track_name VARCHAR(255),
+artist_id VARCHAR(50),
+duration_ms INT,
+album_name VARCHAR(255),
+release_date DATE,
+explicit_flag BIT,
+created_at DATETIME2 DEFAULT GETDATE(),
+updated_at DATETIME2 DEFAULT GETDATE(),
+watermark_ts DATETIME2
+);
+
+-- DATE DIMENSION
+CREATE TABLE dbo.dimDate (
+date_key INT PRIMARY KEY,
+full_date DATE,
+year INT,
+quarter INT,
+month INT,
+month_name VARCHAR(20),
+week_of_year INT,
+day_of_month INT,
+day_name VARCHAR(20),
+is_weekend BIT
+);
+
+-- FACT STREAM
+CREATE TABLE dbo.factStream (
+stream_id BIGINT IDENTITY(1,1) PRIMARY KEY,
+user_id VARCHAR(50),
+track_id VARCHAR(50),
+artist_id VARCHAR(50),
+stream_timestamp DATETIME2,
+ms_played INT,
+skipped BIT,
+platform VARCHAR(50),
+created_at DATETIME2 DEFAULT GETDATE(),
+watermark_ts DATETIME2
+);
