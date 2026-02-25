@@ -74,7 +74,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "@concat(\n'SELECT last_watermark_value \n FROM dbo.pipeline_control \n WHERE table_name = ''',\npipeline().parameters.table_name,\n''''\n)",
+						"sqlReaderQuery": {
+							"value": "@concat(\n'SELECT last_watermark_value \n FROM dbo.pipeline_control \n WHERE table_name = ''',\npipeline().parameters.folder_name,\n''''\n)",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
