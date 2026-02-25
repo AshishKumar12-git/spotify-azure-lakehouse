@@ -147,7 +147,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"folder_path": {
-								"value": "@concat(pipeline().parameters.folder_name,'/ingestion_date=','pipeline().parameters.v_run_date')",
+								"value": "@concat(pipeline().parameters.folder_name,'/ingestion_date=',pipeline().parameters.v_run_date)",
 								"type": "Expression"
 							},
 							"file_name": {
