@@ -1,0 +1,53 @@
+{
+	"name": "Main_Ingestion",
+	"properties": {
+		"activities": [
+			{
+				"name": "Table_Retrieval",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select table_name from dbo.pipeline_control\nwhere is_active = 1",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Sql_dataset",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"parameters": {
+			"is_backfill": {
+				"type": "bool"
+			},
+			"backfill_date": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"v_run_timestamp": {
+				"type": "String"
+			},
+			"v_run_date": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
