@@ -94,7 +94,47 @@
 						"value": "@activity('Table_Retrieval').output.value",
 						"type": "Expression"
 					},
-					"isSequential": true
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Sql_to_bronze_copy",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "Sql_to_bronze_copy",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"is_backfill": {
+										"value": "@pipeline().parameters.is_backfill",
+										"type": "Expression"
+									},
+									"backfill_date": {
+										"value": "@pipeline().parameters.backfill_date",
+										"type": "Expression"
+									},
+									"v_run_timestamp": {
+										"value": "@variables('v_run_timestamp')",
+										"type": "Expression"
+									},
+									"v_run_date": {
+										"value": "@variables('v_run_date')",
+										"type": "Expression"
+									},
+									"folder_name": {
+										"value": "@item().table_name",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
 				}
 			}
 		],
