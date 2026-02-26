@@ -114,4 +114,14 @@ DATEADD(MINUTE,-ABS(CHECKSUM(NEWID()))%500000,GETDATE())
 SET @i=@i+1;
 END
 
+--- Stored Procedure 
 
+CREATE PROCEDURE dbo.sp_update_watermark
+    @table_name VARCHAR(100),
+    @new_watermark DATETIME2
+AS
+BEGIN
+    UPDATE dbo.pipeline_control
+    SET last_watermark_value = @new_watermark
+    WHERE table_name = @table_name
+END
