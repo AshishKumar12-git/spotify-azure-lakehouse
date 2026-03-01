@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "spotifyashishfactory"
+		},
+		"ADLS_linked_Service_accountKey": {
+			"value": ""
+		},
+		"Sql_linked_service_password": {
+			"value": ""
+		},
+		"ADLS_linked_Service_properties_typeProperties_url": {
+			"value": "https://spotifyashishstorage.dfs.core.windows.net/"
+		},
+		"Sql_linked_service_properties_typeProperties_server": {
+			"value": "sqldb-spotify.database.windows.net"
+		},
+		"Sql_linked_service_properties_typeProperties_database": {
+			"value": "spotify_sqldb_oltp"
+		},
+		"Sql_linked_service_properties_typeProperties_userName": {
+			"value": "spotifyserver"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
