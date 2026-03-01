@@ -1,0 +1,278 @@
+{
+	"name": "Sql_to_bronze_copy",
+	"properties": {
+		"activities": [
+			{
+				"name": "If_backfill",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Lookup_old_watermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(pipeline().parameters.is_backfill,true)",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Set_effective_watermark",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "effective_watermark",
+								"value": {
+									"value": "@activity('Lookup_old_watermark').output.firstRow.last_watermark_value",
+									"type": "Expression"
+								}
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Set_effective_backdate",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "effective_watermark",
+								"value": {
+									"value": "@pipeline().parameters.backfill_date",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Lookup_old_watermark",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat(\n'SELECT last_watermark_value \n FROM dbo.pipeline_control \n WHERE table_name = ''',\npipeline().parameters.folder_name,\n''''\n)",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Sql_dataset",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Sql_to_bronze",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "If_backfill",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from @{pipeline().parameters.folder_name}\nwhere watermark_ts > '@{variables('effective_watermark')}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Sql_dataset",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "bronze_dataset",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder_path": {
+								"value": "@concat(pipeline().parameters.folder_name,'/ingestion_date=',pipeline().parameters.v_run_date)",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(\npipeline().parameters.folder_name,\n'_',\npipeline().parameters.v_run_timestamp,\n'.parquet'\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "If_rowscopied",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Sql_to_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(activity('Sql_to_bronze').output.rowsCopied, 0)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "New_Watermark_lookup",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT MAX(watermark_ts) AS new_watermark\nFROM @{pipeline().parameters.folder_name}\nWHERE watermark_ts > '@{variables('effective_watermark')}'",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "Sql_dataset",
+									"type": "DatasetReference"
+								}
+							}
+						},
+						{
+							"name": "SP_Update_Watermark",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "New_Watermark_lookup",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[sp_update_watermark]",
+								"storedProcedureParameters": {
+									"table_name": {
+										"value": {
+											"value": "@pipeline().parameters.folder_name",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"new_watermark": {
+										"value": {
+											"value": "@activity('New_Watermark_lookup').output.firstRow.new_watermark",
+											"type": "Expression"
+										},
+										"type": "Datetime"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "Sql_linked_service",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"is_backfill": {
+				"type": "bool"
+			},
+			"backfill_date": {
+				"type": "string"
+			},
+			"v_run_timestamp": {
+				"type": "string"
+			},
+			"v_run_date": {
+				"type": "string"
+			},
+			"folder_name": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"effective_watermark": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
