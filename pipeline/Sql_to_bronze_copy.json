@@ -224,6 +224,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
+								"storedProcedureName": "dbo.sp_update_watermark",
 								"storedProcedureParameters": {
 									"table_name": {
 										"value": {
