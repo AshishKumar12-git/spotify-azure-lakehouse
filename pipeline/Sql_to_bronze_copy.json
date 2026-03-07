@@ -141,7 +141,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "Sql_dataset",
+						"referenceName": "Azure_Sql_DS",
 						"type": "DatasetReference"
 					}
 				],
@@ -207,7 +207,7 @@
 									"partitionOption": "None"
 								},
 								"dataset": {
-									"referenceName": "Sql_dataset",
+									"referenceName": "Azure_Sql_DS",
 									"type": "DatasetReference"
 								}
 							}
@@ -234,7 +234,6 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[dbo].[sp_update_watermark]",
 								"storedProcedureParameters": {
 									"table_name": {
 										"value": {
@@ -253,7 +252,7 @@
 								}
 							},
 							"linkedServiceName": {
-								"referenceName": "Sql_linked_service",
+								"referenceName": "Azure_Sql_LS",
 								"type": "LinkedServiceReference"
 							}
 						}
