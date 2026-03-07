@@ -65,3 +65,13 @@ platform VARCHAR(50),
 created_at DATETIME2 DEFAULT GETDATE(),
 watermark_ts DATETIME2
 );
+
+
+--- Pipeline Control ---
+
+CREATE TABLE dbo.pipeline_control (
+    table_name VARCHAR(100) PRIMARY KEY,
+    watermark_column VARCHAR(100),
+    last_watermark_value DATETIME2,
+    is_active BIT
+);
