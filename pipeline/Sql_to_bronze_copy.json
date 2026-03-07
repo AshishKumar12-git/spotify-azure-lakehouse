@@ -5,6 +5,8 @@
 			{
 				"name": "If_backfill",
 				"type": "IfCondition",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Lookup_old_watermark",
