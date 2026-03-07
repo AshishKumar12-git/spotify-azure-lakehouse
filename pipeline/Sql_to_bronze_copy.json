@@ -5,8 +5,6 @@
 			{
 				"name": "If_backfill",
 				"type": "IfCondition",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Lookup_old_watermark",
@@ -92,8 +90,6 @@
 			{
 				"name": "Sql_to_bronze",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "If_backfill",
@@ -185,8 +181,6 @@
 						{
 							"name": "New_Watermark_lookup",
 							"type": "Lookup",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
@@ -215,8 +209,6 @@
 						{
 							"name": "SP_Update_Watermark",
 							"type": "SqlServerStoredProcedure",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "New_Watermark_lookup",
