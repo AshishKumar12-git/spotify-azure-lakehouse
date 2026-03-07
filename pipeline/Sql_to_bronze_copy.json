@@ -5,6 +5,8 @@
 			{
 				"name": "If_backfill",
 				"type": "IfCondition",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Lookup_old_watermark",
@@ -82,7 +84,7 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "Sql_dataset",
+						"referenceName": "Azure_Sql_DS",
 						"type": "DatasetReference"
 					}
 				}
