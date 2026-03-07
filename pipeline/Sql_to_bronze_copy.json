@@ -84,7 +84,7 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "Sql_dataset",
+						"referenceName": "AzureSqlDataset",
 						"type": "DatasetReference"
 					}
 				}
