@@ -161,8 +161,6 @@
 			{
 				"name": "If_rowscopied",
 				"type": "IfCondition",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Sql_to_bronze",
