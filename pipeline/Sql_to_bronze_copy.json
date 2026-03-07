@@ -92,6 +92,8 @@
 			{
 				"name": "Sql_to_bronze",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "If_backfill",
@@ -163,6 +165,8 @@
 			{
 				"name": "If_rowscopied",
 				"type": "IfCondition",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Sql_to_bronze",
