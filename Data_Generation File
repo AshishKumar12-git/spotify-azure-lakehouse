@@ -114,6 +114,16 @@ DATEADD(MINUTE,-ABS(CHECKSUM(NEWID()))%500000,GETDATE())
 SET @i=@i+1;
 END
 
+
+--- Pipeline Control ---
+
+INSERT INTO dbo.pipeline_control VALUES
+('factStream','watermark_ts','2025-01-01',1),
+('dimUser','watermark_ts','2025-01-01',1),
+('dimArtist','watermark_ts','2025-01-01',1),
+('dimTrack','watermark_ts','2025-01-01',1);
+
+
 --- Stored Procedure 
 
 CREATE PROCEDURE dbo.sp_update_watermark
